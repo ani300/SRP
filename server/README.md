@@ -1,2 +1,0 @@
-# SRP
-Safest Route Path
