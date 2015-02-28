@@ -1,12 +1,26 @@
 package com.khacks.srp;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONObject;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -17,6 +31,32 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://www.google.com";
+
+        // Request a string response from the provided URL.
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //mTxtDisplay.setText("Response: " + response.toString());
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+
+                    }
+                });
+
+
+        // Add the request to the RequestQueue.
+        queue.add(jsObjRequest);
     }
 
     @Override
@@ -50,6 +90,11 @@ public class MapsActivity extends FragmentActivity {
             if (mMap != null) {
                 setUpMap();
             }
+
+            Polyline line = mMap.addPolyline(new PolylineOptions()
+                    .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
+                    .width(5)
+                    .color(Color.RED));
         }
     }
 
