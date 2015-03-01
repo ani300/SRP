@@ -38,15 +38,12 @@ router.post('/point/route',function(req,res){
         if(index != maneuvers.length-1){
             if(elem.streets && elem.streets.length!= 0) {
                 box = new Box(elem.streets[0], elem.startPoint, maneuvers[index+1].startPoint);
-
-            } else {
-                elem.streets = [maneuvers[index-1].streets[0]];
-                box = new Box(elem.streets[0], elem.startPoint, maneuvers[index+1].startPoint);
+                return function (cb){
+                    if(box) BlackPoint.Search(box,cb);
+                    else cb(null, []);
+                };
             }
-            return function (cb){
-                if(box) BlackPoint.Search(box,cb);
-                else cb(null, []);
-            };
+            return function(cb){cb(null,[]);};
         } else {
             return function(cb){cb(null,[]);};
         }
