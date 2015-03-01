@@ -156,9 +156,15 @@ public class MapsActivity extends FragmentActivity {
                     int duration = Toast.LENGTH_SHORT;
 
                     Toast.makeText(context, "CONTROL POINTS!", duration).show();
+                    JSONArray array2 = new JSONArray();
+                    try {
+                        array2 = response.getJSONObject("route").getJSONArray("legs").
+                                getJSONObject(0).getJSONArray("maneuvers");
+                    }
+                    catch (Exception e) {
+                        
+                    }
 
-                    JSONArray array2 = response.getJSONObject("route").getJSONArray("legs").
-                            getJSONObject(0).getJSONArray("maneuvers");
                 }
             });
         }
