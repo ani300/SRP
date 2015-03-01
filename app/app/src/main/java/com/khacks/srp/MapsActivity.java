@@ -253,8 +253,9 @@ public class MapsActivity extends FragmentActivity {
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
     }
 
-    private void addBlueMarker(LatLng coord) {
-        mMap.addMarker(new MarkerOptions().position(coord).title("Blue Marker").
+    private void addBlueMarker(LatLng coord, String markerString) {
+        if (markerString == null) markerString = "Blue Marker";
+        mMap.addMarker(new MarkerOptions().position(coord).title(markerString).
             icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
     }
 }
