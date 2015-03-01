@@ -114,7 +114,28 @@ public class MapsActivity extends FragmentActivity
                         e.printStackTrace();
                     }
                     Toast.makeText(getApplicationContext(), "Calculating route", Toast.LENGTH_SHORT).show();
-                    doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
+
+                    // Add all existing points
+                    JSONObject query = new JSONObject();
+                    // This POST request doesnt retrieve a new route different
+                    try {
+                        for (int i = 0; i < markerLocation.size(); i++) {
+                            JSONObject info = new JSONObject();
+                            double lat = markerLocation.get(i).latitude;
+                            double lng = markerLocation.get(i).longitude;
+                            info.put("lat", lat);
+                            info.put("lng", lng);
+                            info.put("weight", 100);
+                            info.put("radius", 5);
+                            query.accumulate("routeControlPointCollection", info);
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
+
+                        //doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             drawJSONDirection(response);
@@ -258,6 +279,7 @@ public class MapsActivity extends FragmentActivity
                 // Print them as we just received them
                 addBlueMarker(new LatLng(lat, lng), markerText);
             }
+            /*
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -273,6 +295,7 @@ public class MapsActivity extends FragmentActivity
                     }
                 }
             });
+            */
         }
         catch (Exception e) {
             e.printStackTrace();
