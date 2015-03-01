@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -116,8 +117,6 @@ public class MapsActivity extends FragmentActivity
                     }
                     Toast.makeText(getApplicationContext(), "Calculating route", Toast.LENGTH_SHORT).show();
 
-
-
                     doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -144,17 +143,40 @@ public class MapsActivity extends FragmentActivity
                 Context context = getApplicationContext();
                 int duration = Toast.LENGTH_SHORT;
                 Toast.makeText(context, "Calculating SAFE route", duration).show();
+                String url = "http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&inFormat=json";
+                JSONObject query = new JSONObject();
+                try {
+                    String from = mFromField.getText().toString();
+                    String to = mToField.getText().toString();
+                    query.accumulate("locations", new JSONArray());
+                    query.getJSONArray("locations").put(from);
+                    query.getJSONArray("locations").put(to);
+                    query.accumulate("options", new JSONObject());
+                    query.getJSONObject("options").accumulate("avoidTimedConditions", false);
+                    query.getJSONObject("options").accumulate("routeType","fastest");
+                    query.getJSONObject("options").accumulate("enhancedNarrative",false);
+                    query.getJSONObject("options").accumulate("shapeFormat","raw");
+                    query.getJSONObject("options").accumulate("generalize",0);
+                    query.getJSONObject("options").accumulate("locale","en_US");
+                    query.getJSONObject("options").accumulate("unit","m");
+                    query.getJSONObject("options").accumulate("routeControlPointCollection",
+                            queryControlPoints.get("routeControlPointCollection"));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Log.v("LO", url);
+                Log.v("LO", query.toString());
 
-                doPOSTRequest(mMapQuestUrl, queryControlPoints, new Response.Listener<JSONObject>() {
+                doPOSTRequest(url, query, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         drawJSONDirection(response);
-                        
+
                         JSONArray array2 = new JSONArray();
                         try {
                             //array2 = response.getJSONObject("route").getJSONArray("shapePoints");
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -262,40 +284,25 @@ public class MapsActivity extends FragmentActivity
     private void searchControlPoints(JSONObject jsonObject) {
         try {
             queryControlPoints = new JSONObject();
+            queryControlPoints.accumulate("routeControlPointCollection", new JSONArray());
             JSONArray array = jsonObject.getJSONArray("blackPoints");
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
                 double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
                 double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lon");
                 String markerText = array.getJSONObject(i).getString("road") + ", km "
-                        + array.getJSONObject(i).getString("km");
+                        + array.getJSONObject(i).getString("km") + ", mortality: "
+                        + array.getJSONObject(i).getString("rate");
                 info.put("lat",lat);
                 info.put("lng",lng);
                 info.put("weight",100);
-                info.put("radius",5);
-                queryControlPoints.accumulate("routeControlPointCollection", info);
+                info.put("radius",0.250);
+                queryControlPoints.getJSONArray("routeControlPointCollection").put(info);
                 markerLocation.add(new LatLng(lat, lng));
                 markerName.add(markerText);
                 // Print them as we just received them
                 addBlueMarker(new LatLng(lat, lng), markerText);
             }
-            /*
-            doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    Context context = getApplicationContext();
-                    int duration = Toast.LENGTH_SHORT;
-                    
-                    JSONArray array2 = new JSONArray();
-                    try {
-                        array2 = response.getJSONObject("route").getJSONArray("shapePoints");
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            */
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -330,6 +337,8 @@ public class MapsActivity extends FragmentActivity
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+            mMap.getUiSettings().setCompassEnabled(false);
+            
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();

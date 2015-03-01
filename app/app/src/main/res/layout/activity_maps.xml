@@ -8,9 +8,17 @@
         xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
         android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#76959595"></FrameLayout>
+
     <EditText
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:id="@+id/fromField"
         android:inputType="textCapSentences|textPostalAddress|text"
         android:hint="From:"
@@ -19,7 +27,7 @@
 
     <EditText
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:id="@+id/toField"
         android:inputType="textCapSentences|text|textPostalAddress"
         android:hint="To:"
