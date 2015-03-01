@@ -29,6 +29,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -78,6 +80,7 @@ public class MapsActivity extends FragmentActivity {
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast.makeText(context, response.toString(), duration).show();
+                        drawJSONDirection(response);
                         callJSolaServer(response);
 
                         //mTxtDisplay.setText("Response: " + response.toString());
@@ -218,5 +221,32 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+    }
+
+    /**
+     * Draw the route from the JSON object in the map
+     */
+    private void drawJSONDirection(JSONObject direction) {
+        Polyline line = mMap.addPolyline(new PolylineOptions()
+                .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
+                .width(5)
+                .color(Color.RED));
+
+        JSONArray jArray = null;
+        ArrayList<LatLng> points = new ArrayList<LatLng>();
+
+        try {
+            jArray = direction.getJSONObject("route").getJSONObject("shape").
+                getJSONArray("shapePoints");
+            if (jArray != null) {
+                for (int i=0;i<jArray.length();i+=2){
+                    points.add(new LatLng((double)jArray.get(i), (double)jArray.get(i+1)));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
     }
 }
