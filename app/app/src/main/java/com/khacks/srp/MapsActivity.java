@@ -67,14 +67,14 @@ public class MapsActivity extends FragmentActivity {
                 catch (Exception e) {
                 }
                 Log.v("LO", initialRouteGuessUrl);
-                executeRequest(initialRouteGuessUrl);
+                doGETRequest(initialRouteGuessUrl);
             }
         });
 
 
     }
 
-    private void executeRequest(String url) {
+    private void doGETRequest(String url) {
         // Request a string response from the provided URL.
         Log.v("LO", "WOLO");
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -86,6 +86,36 @@ public class MapsActivity extends FragmentActivity {
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast.makeText(context, response.toString(), duration).show();
+
+                        //mTxtDisplay.setText("Response: " + response.toString());
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO Auto-generated method stub
+                        Log.v("LO", error.getMessage());
+                    }
+                });
+
+
+        // Add the request to the RequestQueue.
+        mQueue.add(jsObjRequest);
+    }
+
+    private void doPOSTRequest(String url, JSONObject query) {
+        // Request a string response from the provided URL.
+        Log.v("LO", "WOLO");
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.POST, url, query, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Context context = getApplicationContext();
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast.makeText(context, response.toString(), duration).show();
+
                         //mTxtDisplay.setText("Response: " + response.toString());
                     }
                 }, new Response.ErrorListener() {
