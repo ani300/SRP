@@ -164,7 +164,8 @@ public class MapsActivity extends FragmentActivity {
 
                     Toast.makeText(context, "CONTROL POINTS!", duration).show();
 
-                    //mTxtDisplay.setText("Response: " + response.toString());
+                    JSONArray array2 = response.getJSONObject("route").getJSONArray("legs").
+                            getJSONObject(0).getJSONArray("maneuvers");
                 }
             });
         }
