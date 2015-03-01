@@ -2,4 +2,12 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  h2 Welcome to #{title}
+  p Do you wanna add some points?
+  form(action="/point/add",method="POST")
+       input(type="number",placeholder="Lat", name="lat")
+       input(type="number",placeholder="Lng", name="lng")
+       input(type="text",placeholder="Road", name="road")
+       input(type="number",placeholder="Km", name="km")
+       input(type="number",placeholder="Rate", name="rate")
+       button(type="submit") Add
