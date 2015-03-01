@@ -10,3 +10,7 @@ a {
 input{
     margin:3px;
 }
+
+label{
+    display: inline;
+}

@@ -13,5 +13,12 @@ block content
            input(type="number",placeholder="Km", name="km",style="width:27%")
            input(type="number",placeholder="Rate", name="rate",style="width:27%")
            button(type="submit",style="width:10%") Add
-
+      p Here, have a point list!
+      each point in points
+        div(style="width:80%")
+          label(style="width:17%;") #{point.lat}
+          label(style="width:17%;") #{point.lng}
+          label(style="width:17%;") #{point.road}
+          label(style="width:17%;") #{point.km}
+          label(style="width:17%;") #{point.rate}
   script(src='/javascripts/index.js')
