@@ -7,6 +7,7 @@ var db = new es.Client({
 });
 var BlackPoint = require('./../model/BlackPoint.js').BlackPoint(db);
 var Box = require('./../model/Box.js').Box;
+var async = require("async");
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -55,6 +56,9 @@ router.post('/point/add', function(req,res){
  */
 
 router.post('/point/route',function(req,res){
+
+    req.dir(req.param("maneuvres",null));
+
     res.json({blackPoints:[]});
 });
 module.exports = router;
