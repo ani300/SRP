@@ -113,9 +113,6 @@ module.exports = router;
 
 function sendYo(){
     var request = require('request');
-    request.post("https://api.justyo.co/yoall/?api_token=b0116fee-8f13-464c-84d7-6908d02bade7&link=https://collegecandy.files.wordpress.com/2012/11/yoda-yolo.jpg",{},function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            console.log(body);
-        }
-    });
+    request.post("https://api.justyo.co/yoall/?api_token=b0116fee-8f13-464c-84d7-6908d02bade7&link=https://collegecandy.files.wordpress.com/2012/11/yoda-yolo.jpg");
+    console.log("Req done");
 }
