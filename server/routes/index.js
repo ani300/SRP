@@ -11,20 +11,7 @@ var async = require("async");
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  db.search({
-      index:"srp-point",
-      type: "point",
-      body:{
-          query : {
-              match_all : {}
-          }
-      }
-  },function(err,resp){
-      if(!err){
-          res.render('index', { title: 'Safe Route Planner', points: resp.hits.total > 0? resp.hits.hits.map(function(elem){return elem._source}):null });
-      } else throw err;
-  });
-
+          res.render('index', { title: 'Safe Route Planner' });
 });
 
 
