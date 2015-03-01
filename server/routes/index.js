@@ -78,7 +78,7 @@ router.post('/point/route',function(req,res){
 
     var maneuvers = req.param("maneuvers",null);
 
-    console.dir(maneuvers);
+//    console.dir(maneuvers);
 
 
     var array = maneuvers.map( function (elem, index) {
@@ -87,8 +87,8 @@ router.post('/point/route',function(req,res){
             if(elem.streets && elem.streets.length!= 0) {
                 box = new Box(elem.streets[0], elem.startPoint, maneuvers[index+1].startPoint);
                 return function (cb){
-                    console.log("In kek func");
-                    console.dir(box);
+                    //console.log("In kek func");
+                    //console.dir(box);
                     if(box) BlackPoint.Search(box,cb);
                     else cb(null, []);
                 };
