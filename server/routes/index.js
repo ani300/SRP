@@ -76,8 +76,8 @@ function sendYo(){
     var request = require('request');
 
     request.post(
-        'http://api.justyo.co/yoall/',
-        { form: { 'api_token': 'b0116fee-8f13-464c-84d7-6908d02bade7'} },
+        'http://api.justyo.co/yo/',
+        { form: { 'api_token': 'b0116fee-8f13-464c-84d7-6908d02bade7', 'username':"GILBERTOMY"} },
         function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 console.log(body);
