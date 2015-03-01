@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
@@ -74,6 +75,7 @@ public class MapsActivity extends FragmentActivity {
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast.makeText(context, response.toString(), duration).show();
+                        callJSolaServer(response);
 
                         //mTxtDisplay.setText("Response: " + response.toString());
                     }
@@ -84,6 +86,25 @@ public class MapsActivity extends FragmentActivity {
 
     }
 
+    void callJSolaServer(JSONObject response) {
+        String url = "http://37.187.81.177:8000/point/route";
+        JSONArray array = null;
+        JSONObject query = null;
+        try {
+            array = response.getJSONObject("route").getJSONArray("legs").
+                    getJSONObject(0).getJSONArray("maneuvers");
+            query.accumulate("maneuvers", array);
+        }
+        catch (Exception e) {
+        }
+
+        doPOSTRequest(url, query, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                searchControlPoints(response);
+            }
+        });
+    }
     void doGETRequest(String url, Response.Listener<JSONObject> listener) {
         // Request a string response from the provided URL.
         Log.v("LO", "WOLO");
