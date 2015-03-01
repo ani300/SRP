@@ -174,7 +174,6 @@ public class MapsActivity extends FragmentActivity
                 (Request.Method.POST, url, query, listener, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO Auto-generated method stub
                         if (error != null) {
                             if (error.getMessage() != null) {
                                 Log.v("LO", error.getMessage());
@@ -346,8 +345,10 @@ public class MapsActivity extends FragmentActivity
         // The good stuff goes here.
         Log.v("LO", "WOLO");
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
-                mLastLocation.getLongitude()), 13));
+        if (mLastLocation != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
+                    mLastLocation.getLongitude()), 13));
+        }
     }
 
     @Override
