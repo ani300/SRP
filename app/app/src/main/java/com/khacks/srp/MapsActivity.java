@@ -148,8 +148,8 @@ public class MapsActivity extends FragmentActivity
                     String from = mFromField.getText().toString();
                     String to = mToField.getText().toString();
                     query.accumulate("locations", new JSONArray());
-                    query.getJSONArray("locations").put(URLEncoder.encode(from, "utf-8"));
-                    query.getJSONArray("locations").put(URLEncoder.encode(to, "utf-8"));
+                    query.getJSONArray("locations").put(from);
+                    query.getJSONArray("locations").put(to);
                     query.accumulate("options", new JSONObject());
                     query.getJSONObject("options").accumulate("avoidTimedConditions", false);
                     query.getJSONObject("options").accumulate("routeType","fastest");
