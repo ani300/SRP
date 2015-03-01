@@ -188,8 +188,8 @@ public class MapsActivity extends FragmentActivity
             JSONArray array = jsonObject.getJSONArray("blackPoints");
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
-                double lat = array.getJSONObject(i).getDouble("lat");
-                double lng = array.getJSONObject(i).getDouble("lng");
+                double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
+                double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lng");
                 info.put("lat",lat);
                 info.put("lng",lng);
                 info.put("weight",100);
