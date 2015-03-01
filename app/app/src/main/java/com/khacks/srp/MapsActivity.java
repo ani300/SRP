@@ -255,8 +255,11 @@ public class MapsActivity extends FragmentActivity {
             e.printStackTrace();
         }
 
+        // Remove previous roads and marks
+        mMap.clear();
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
         focusCameraOnPath(points);
+
     }
 
     /**
@@ -275,7 +278,7 @@ public class MapsActivity extends FragmentActivity {
         final int width = size.x;
         final int height = size.y;
         final int padding = 40;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
                 builder.build(), width, height, padding));
     }
 
