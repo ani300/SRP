@@ -3,9 +3,11 @@ package com.khacks.srp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,11 +19,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -78,6 +82,7 @@ public class MapsActivity extends FragmentActivity {
                             int duration = Toast.LENGTH_SHORT;
 
                             Toast.makeText(context, response.toString(), duration).show();
+                            drawJSONDirection(response);
                             callJSolaServer(response);
                         }
                     });
@@ -251,6 +256,27 @@ public class MapsActivity extends FragmentActivity {
         }
 
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
+        focusCameraOnPath(points);
+    }
+
+    /**
+     * Zooms the camera so that the path fits in the screen
+     * @param path set of points that form the path
+     */
+    private void focusCameraOnPath(ArrayList<LatLng> path) {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng point : path) {
+            builder.include(point);
+        }
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        final int width = size.x;
+        final int height = size.y;
+        final int padding = 40;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
+                builder.build(), width, height, padding));
     }
 
     private void addBlueMarker(LatLng coord, String markerString) {
