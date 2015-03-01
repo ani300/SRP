@@ -91,7 +91,7 @@ var searchPoint = function(box){
     db.search(query,function(err,resp){
         if(err) console.dir(err);
         else {
-            if(res.hits.total != 0) return resp.hits.hits;
+            if(resp.hits.total != 0) return resp.hits.hits;
             else return [];
         }
     });
