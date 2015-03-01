@@ -15,5 +15,5 @@ block content
            button(type="submit",style="width:10%") Add
       p Here, have a point list!
       each point in points
-        div(style="width:80%") <b>Latitude:</b> #{point.location.lat} <b>Longitude:</b> #{point.location.lon} <b>Road:</b> #{point.road} <b>Km:</b> #{point.km} <b>Rate:</b> #{point.rate}
+        p(style="width:80%") <b>Latitude:</b> #{point.location.lat} <b>Longitude:</b> #{point.location.lon} <b>Road:</b> #{point.road} <b>Km:</b> #{point.km} <b>Rate:</b> #{point.rate}
   script(src='/javascripts/index.js')
