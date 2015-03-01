@@ -103,8 +103,10 @@ public class MapsActivity extends FragmentActivity
                                 URLEncoder.encode(to, "utf-8");
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                     }
                     Log.v("LO", mMapQuestUrl);
+                    Toast.makeText(getApplicationContext(), "Calculating route", Toast.LENGTH_SHORT).show();
                     doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -140,6 +142,7 @@ public class MapsActivity extends FragmentActivity
             query.accumulate("maneuvers", array);
         }
         catch (Exception e) {
+            e.printStackTrace();
         }
         Log.v("LO", response.toString());
         doPOSTRequest(url, query, new Response.Listener<JSONObject>() {
@@ -224,7 +227,7 @@ public class MapsActivity extends FragmentActivity
             });
         }
         catch (Exception e) {
-            // WOLOLO
+            e.printStackTrace();
         }
 
     }
