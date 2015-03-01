@@ -93,6 +93,7 @@ router.post('/point/route',function(req,res){
                     else cb(null, []);
                 };
             }
+            return function(cb){cb(null,[]);};
         } else {
             return function(cb){cb(null,[]);};
         }
