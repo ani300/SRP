@@ -140,7 +140,7 @@ public class MapsActivity extends FragmentActivity
                         public void onResponse(JSONObject response) {
                             drawJSONDirection(response);
                             mSafeSearch.setVisibility(View.VISIBLE);
-                            mSafeSearch.setActivated(true);
+                            mSafeSearch.setEnabled(true);
                             callJSolaServer(response);
                         }
                     });
