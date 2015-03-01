@@ -22,6 +22,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -61,6 +62,7 @@ public class MapsActivity extends FragmentActivity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
+    // Wether if a Yo has been sent for his mark
     private ArrayList<Boolean> markerVisited;
     private ArrayList<LatLng> markerLocation;
     private ArrayList<String> markerName;
@@ -69,8 +71,7 @@ public class MapsActivity extends FragmentActivity
     // True if there is tracking navigation
     private boolean mTracking = false;
     // Distance to detect the mark, in km.
-    final private double mMarkMinDist = 2.0;
-
+    final private double mMarkMinDist = 100.0;
 
     @Override
     protected void onStart() {
@@ -113,6 +114,7 @@ public class MapsActivity extends FragmentActivity
             public void onClick(View view) {
                 // Desactivate navigating mode
                 mTracking = false;
+
                 markerVisited = new ArrayList<>();
                 markerLocation = new ArrayList<>();
                 markerName = new ArrayList<>();
@@ -256,6 +258,7 @@ public class MapsActivity extends FragmentActivity
                         // TODO Auto-generated method stub
                         if (error != null) {
                             if (error.getMessage() != null) {
+                                error.printStackTrace();
                                 Toast.makeText(getApplicationContext(),
                                         "There was an error, try again", Toast.LENGTH_SHORT).show();
                             }
@@ -323,6 +326,7 @@ public class MapsActivity extends FragmentActivity
                 queryControlPoints.getJSONArray("routeControlPointCollection").put(info);
                 markerLocation.add(new LatLng(lat, lng));
                 markerName.add(markerText);
+                markerVisited.add(false);
                 // Print them as we just received them
                 addBlueMarker(new LatLng(lat, lng), markerText);
             }
@@ -333,14 +337,8 @@ public class MapsActivity extends FragmentActivity
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
-    }
-
     // Distance between two points in a sphere (in lat, lon) in km.
-    private double dist(LatLng pos1, LatLng pos2) {
+    public double dist(LatLng pos1, LatLng pos2) {
         double dLat = Math.toRadians(pos2.latitude - pos1.latitude);
         double dLon = Math.toRadians(pos2.longitude - pos1.longitude);
         double lat1 = Math.toRadians(pos1.latitude);
@@ -349,6 +347,12 @@ public class MapsActivity extends FragmentActivity
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
         double c = 2 * Math.asin(Math.sqrt(a));
         return (RADIUS * c);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
     }
 
     // Starts travel by enabling tracking
@@ -373,11 +377,21 @@ public class MapsActivity extends FragmentActivity
                 if (dist(ownPos, pos) <= mMarkMinDist && !markerVisited.get(i)) {
                     markerVisited.set(i, true);
                     String YoUrl = "http://37.187.81.177:8000/yo";
-                    doGETRequest(YoUrl, new Response.Listener<JSONObject>() {
+
+                    // Request a string response from the provided URL.
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, YoUrl,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    // empty
+                                }
+                            }, new Response.ErrorListener() {
                         @Override
-                        public void onResponse(JSONObject response) {
+                        public void onErrorResponse(VolleyError error) {
                         }
                     });
+// Add the request to the RequestQueue.
+                    mQueue.add(stringRequest);
 
                 }
             }
@@ -462,7 +476,7 @@ public class MapsActivity extends FragmentActivity
 
         try {
             jArray = direction.getJSONObject("route").getJSONObject("shape").
-                getJSONArray("shapePoints");
+                    getJSONArray("shapePoints");
             if (jArray != null) {
                 for (int i=0;i<jArray.length();i+=2){
                     points.add(new LatLng((double)jArray.get(i), (double)jArray.get(i+1)));
