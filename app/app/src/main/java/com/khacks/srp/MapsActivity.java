@@ -169,13 +169,18 @@ public class MapsActivity extends FragmentActivity
 
     private void doPOSTRequest(String url, JSONObject query, Response.Listener<JSONObject> listener) {
         // Request a string response from the provided URL.
-        Log.v("LO", "WOLO");
+        Log.v("LO", url);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.POST, url, query, listener, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
-                        Log.v("LO", error.getMessage());
+                        if (error != null) {
+                            Log.v("LO", error.getMessage());
+                        }
+                        else {
+                            Log.v("LO", "WOLO :(");
+                        }
                     }
                 });
         // Add the request to the RequestQueue.
