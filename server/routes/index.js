@@ -76,7 +76,7 @@ router.post('/point/add', function(req,res){
 router.post('/point/route',function(req,res){
 
 
-    var maneuvers =req.param("maneuvers",null);
+    var maneuvers = req.param("maneuvers",null);
 
 
     var array = maneuvers.map( function (elem, index) {
