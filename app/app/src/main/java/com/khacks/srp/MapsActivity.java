@@ -90,8 +90,8 @@ public class MapsActivity extends FragmentActivity {
 
     void callJSolaServer(JSONObject response) {
         String url = "http://37.187.81.177:8000/point/route";
-        JSONArray array = null;
-        JSONObject query = null;
+        JSONArray array = new JSONArray();
+        JSONObject query = new JSONObject();
         try {
             array = response.getJSONObject("route").getJSONArray("legs").
                     getJSONObject(0).getJSONArray("maneuvers");
@@ -103,7 +103,7 @@ public class MapsActivity extends FragmentActivity {
         doPOSTRequest(url, query, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                searchControlPoints(response);
+                //searchControlPoints(response);
             }
         });
     }
