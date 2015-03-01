@@ -38,7 +38,7 @@ public class MapsActivity extends FragmentActivity {
     private Button mSend;
 
     private RequestQueue mQueue;
-    private String initialRouteGuessUrl;
+    private String mapQuestUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +53,14 @@ public class MapsActivity extends FragmentActivity {
         mFromField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
         mToField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
 
+        // Initialize variables
+        try {
+            mapQuestUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
+                    URLEncoder.encode(mFromField.getText().toString(), "utf-8")+"&to="+
+                    URLEncoder.encode(mToField.getText().toString(), "utf-8");
+        }
+        catch (Exception e) {
+        }
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
@@ -60,15 +68,9 @@ public class MapsActivity extends FragmentActivity {
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    initialRouteGuessUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
-                            URLEncoder.encode(mFromField.getText().toString(), "utf-8")+"&to="+
-                            URLEncoder.encode(mToField.getText().toString(), "utf-8");
-                }
-                catch (Exception e) {
-                }
-                Log.v("LO", initialRouteGuessUrl);
-                doGETRequest(initialRouteGuessUrl, new Response.Listener<JSONObject>() {
+
+                Log.v("LO", mapQuestUrl);
+                doGETRequest(mapQuestUrl, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Context context = getApplicationContext();
@@ -136,6 +138,36 @@ public class MapsActivity extends FragmentActivity {
                 });
         // Add the request to the RequestQueue.
         mQueue.add(jsObjRequest);
+    }
+
+    private void searchControlPoints(JSONObject jsonObject) {
+        try {
+            JSONObject query = new JSONObject();
+            JSONArray array = jsonObject.getJSONArray("blackPoints");
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject info = new JSONObject();
+                info.put("lat",array.getJSONObject(i).getDouble("lat"));
+                info.put("lng",array.getJSONObject(i).getDouble("lng"));
+                info.put("weight",100);
+                info.put("radius",5);
+                query.accumulate("routeControlPointCollection",info);
+            }
+            doPOSTRequest(mapQuestUrl, query, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast.makeText(context, "CONTROL POINTS!", duration).show();
+
+                    //mTxtDisplay.setText("Response: " + response.toString());
+                }
+            });
+        }
+        catch (Exception e) {
+            // WOLOLO
+        }
+
     }
 
     @Override
