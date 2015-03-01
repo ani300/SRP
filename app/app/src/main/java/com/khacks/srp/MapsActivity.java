@@ -35,7 +35,7 @@ public class MapsActivity extends FragmentActivity {
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://www.google.com";
+        String url ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&from=Lancaster,PA&to=York,PA&shapeFormat=raw&generalize=0";
 
         // Request a string response from the provided URL.
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
@@ -43,6 +43,10 @@ public class MapsActivity extends FragmentActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
+                        Context context = getApplicationContext();
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast.makeText(context, response.toString(), duration).show();
                         //mTxtDisplay.setText("Response: " + response.toString());
                     }
                 }, new Response.ErrorListener() {
