@@ -57,7 +57,7 @@ router.post('/point/add', function(req,res){
 
 router.post('/point/route',function(req,res){
 
-    req.dir(req.param("maneuvers",null));
+    console.dir(req.param("maneuvers",null));
 
     res.json({blackPoints:[]});
 });
