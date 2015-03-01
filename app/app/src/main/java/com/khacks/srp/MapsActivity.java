@@ -290,7 +290,8 @@ public class MapsActivity extends FragmentActivity
                 double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
                 double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lon");
                 String markerText = array.getJSONObject(i).getString("road") + ", km "
-                        + array.getJSONObject(i).getString("km");
+                        + array.getJSONObject(i).getString("km") + ", mortality: "
+                        + array.getJSONObject(i).getString("rate");
                 info.put("lat",lat);
                 info.put("lng",lng);
                 info.put("weight",100);
