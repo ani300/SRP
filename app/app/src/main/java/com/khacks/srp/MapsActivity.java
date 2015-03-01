@@ -246,6 +246,8 @@ public class MapsActivity extends FragmentActivity
                 query.accumulate("routeControlPointCollection", info);
                 markerLocation.add(new LatLng(lat, lng));
                 markerName.add(markerText);
+                // Print them as we just received them
+                addBlueMarker(new LatLng(lat, lng), markerText);
             }
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
                 @Override
@@ -258,6 +260,7 @@ public class MapsActivity extends FragmentActivity
                         array2 = response.getJSONObject("route").getJSONArray("shapePoints");
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             });
@@ -339,9 +342,13 @@ public class MapsActivity extends FragmentActivity
 
         // Remove previous roads and marks
         mMap.clear();
+        // Print map and all markers
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
-        focusCameraOnPath(points);
 
+        for (int i = 0; i < markerLocation.size(); ++i) {
+            addBlueMarker(markerLocation.get(i), markerName.get(i));
+        }
+        focusCameraOnPath(points);
     }
 
     /**
@@ -360,8 +367,11 @@ public class MapsActivity extends FragmentActivity
         final int width = size.x;
         final int height = size.y;
         final int padding = 40;
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
-                builder.build(), width, height, padding));
+        // avoid animateCamera if points is empty
+        if (path.size() > 0) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                    builder.build(), width, height, padding));
+        }
     }
 
     private void addBlueMarker(LatLng coord, String markerString) {
