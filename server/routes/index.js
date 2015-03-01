@@ -105,6 +105,7 @@ router.post('/point/route',function(req,res){
         else {
             var arr = [];
             results.map(function(elem){arr = arr.concat(elem);});
+            console.dir(arr);
             res.json({blackPoints:arr});
         }
     });
