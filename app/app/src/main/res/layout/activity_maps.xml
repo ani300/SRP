@@ -32,8 +32,19 @@
         android:text="Search"
         android:id="@+id/searchButton"
         android:layout_gravity="end"
-        android:layout_below="@+id/toField"/>
+        android:layout_below="@+id/toField"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Search Safe Route"
+        android:id="@+id/safeButton"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        android:enabled="false" />
 
 
 </RelativeLayout>

@@ -47,6 +47,7 @@ public class MapsActivity extends FragmentActivity
     private EditText mFromField;
     private EditText mToField;
     private Button mSend;
+    private Button mSafeSearch;
 
     private RequestQueue mQueue;
     private String mMapQuestUrl;
@@ -86,6 +87,7 @@ public class MapsActivity extends FragmentActivity
         mFromField = (EditText) findViewById(R.id.fromField);
         mToField = (EditText) findViewById(R.id.toField);
         mSend = (Button) findViewById(R.id.searchButton);
+        mSafeSearch = (Button) findViewById(R.id.safeButton);
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
@@ -116,6 +118,8 @@ public class MapsActivity extends FragmentActivity
                         @Override
                         public void onResponse(JSONObject response) {
                             drawJSONDirection(response);
+                            mSafeSearch.setVisibility(View.VISIBLE);
+                            mSafeSearch.setActivated(true);
                             callJSolaServer(response);
                         }
                     });
@@ -130,7 +134,12 @@ public class MapsActivity extends FragmentActivity
             }
         });
 
-
+        mSafeSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: Fill listener
+            }
+        });
     }
 
     void callJSolaServer(JSONObject response) {
