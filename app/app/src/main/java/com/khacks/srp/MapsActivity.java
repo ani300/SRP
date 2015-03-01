@@ -181,14 +181,17 @@ public class MapsActivity extends FragmentActivity
                         // TODO Auto-generated method stub
                         if (error != null) {
                             if (error.getMessage() != null) {
-                                Log.v("LO", error.getMessage());
+                                Toast.makeText(getApplicationContext(),
+                                        "There was an error, try again", Toast.LENGTH_SHORT).show();
                             }
                             else {
-                                Log.v("LO", "WOLO :(");
+                                Toast.makeText(getApplicationContext(),
+                                        "There was a small error, try again", Toast.LENGTH_SHORT).show();
                             }
                         }
                         else {
-                            Log.v("LO", "WOLO :(((((");
+                            Toast.makeText(getApplicationContext(),
+                                    "There was a big error, try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -208,14 +211,17 @@ public class MapsActivity extends FragmentActivity
                     public void onErrorResponse(VolleyError error) {
                         if (error != null) {
                             if (error.getMessage() != null) {
-                                Log.v("LO", error.getMessage());
+                                Toast.makeText(getApplicationContext(),
+                                        "There was an error, try again", Toast.LENGTH_SHORT).show();
                             }
                             else {
-                                Log.v("LO", "WOLO :(");
+                                Toast.makeText(getApplicationContext(),
+                                        "There was a small error, try again", Toast.LENGTH_SHORT).show();
                             }
                         }
                         else {
-                            Log.v("LO", "WOLO :(((((");
+                            Toast.makeText(getApplicationContext(),
+                                    "There was a big error, try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
