@@ -54,6 +54,9 @@ public class MapsActivity extends FragmentActivity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
+    private ArrayList<LatLng> markerLocation;
+    private ArrayList<String> markerName;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -87,6 +90,9 @@ public class MapsActivity extends FragmentActivity
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
         final Activity mActivity = this;
+
+        markerLocation = new ArrayList<>();
+        markerName = new ArrayList<>();
 
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,14 +181,17 @@ public class MapsActivity extends FragmentActivity
                         // TODO Auto-generated method stub
                         if (error != null) {
                             if (error.getMessage() != null) {
-                                Log.v("LO", error.getMessage());
+                                Toast.makeText(getApplicationContext(),
+                                        "There was an error, try again", Toast.LENGTH_SHORT).show();
                             }
                             else {
-                                Log.v("LO", "WOLO :(");
+                                Toast.makeText(getApplicationContext(),
+                                        "There was a small error, try again", Toast.LENGTH_SHORT).show();
                             }
                         }
                         else {
-                            Log.v("LO", "WOLO :(((((");
+                            Toast.makeText(getApplicationContext(),
+                                    "There was a big error, try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -202,14 +211,17 @@ public class MapsActivity extends FragmentActivity
                     public void onErrorResponse(VolleyError error) {
                         if (error != null) {
                             if (error.getMessage() != null) {
-                                Log.v("LO", error.getMessage());
+                                Toast.makeText(getApplicationContext(),
+                                        "There was an error, try again", Toast.LENGTH_SHORT).show();
                             }
                             else {
-                                Log.v("LO", "WOLO :(");
+                                Toast.makeText(getApplicationContext(),
+                                        "There was a small error, try again", Toast.LENGTH_SHORT).show();
                             }
                         }
                         else {
-                            Log.v("LO", "WOLO :(((((");
+                            Toast.makeText(getApplicationContext(),
+                                    "There was a big error, try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -224,13 +236,16 @@ public class MapsActivity extends FragmentActivity
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
                 double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
-                double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lng");
+                double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lon");
+                String markerText = array.getJSONObject(i).getString("road") + ", "
+                        + array.getJSONObject(i).getString("km");
                 info.put("lat",lat);
                 info.put("lng",lng);
                 info.put("weight",100);
                 info.put("radius",5);
                 query.accumulate("routeControlPointCollection", info);
-                addBlueMarker(new LatLng(lat, lng), "Point " + i);
+                markerLocation.add(new LatLng(lat, lng));
+                markerName.add(markerText);
             }
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
                 @Override
