@@ -1,11 +1,13 @@
 package com.khacks.srp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.Point;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,11 +18,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -30,7 +35,6 @@ import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -52,10 +56,6 @@ public class MapsActivity extends FragmentActivity {
         mFromField = (EditText) findViewById(R.id.fromField);
         mToField = (EditText) findViewById(R.id.toField);
         mSend = (Button) findViewById(R.id.searchButton);
-        mFromField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-        mToField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-
-
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
@@ -63,29 +63,30 @@ public class MapsActivity extends FragmentActivity {
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Initialize variables
-                try {
-                    mMapQuestUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
-                            URLEncoder.encode(mFromField.getText().toString(), "utf-8")+"&to="+
-                            URLEncoder.encode(mToField.getText().toString(), "utf-8");
-                }
-                catch (Exception e) {
-                }
-
-                Log.v("LO", mMapQuestUrl);
-                doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Context context = getApplicationContext();
-                        int duration = Toast.LENGTH_SHORT;
-
-                        Toast.makeText(context, response.toString(), duration).show();
-                        drawJSONDirection(response);
-                        callJSolaServer(response);
-
-                        //mTxtDisplay.setText("Response: " + response.toString());
+                String from = mFromField.getText().toString();
+                String to = mToField.getText().toString();
+                if (!from.isEmpty() && !to.isEmpty()) {
+                    // Initialize variables
+                    try {
+                        mMapQuestUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
+                                URLEncoder.encode(from, "utf-8")+"&to="+
+                                URLEncoder.encode(to, "utf-8");
                     }
-                });
+                    catch (Exception e) {
+                    }
+                    Log.v("LO", mMapQuestUrl);
+                    doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Context context = getApplicationContext();
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast.makeText(context, response.toString(), duration).show();
+                            drawJSONDirection(response);
+                            callJSolaServer(response);
+                        }
+                    });
+                }
             }
         });
 
@@ -103,7 +104,7 @@ public class MapsActivity extends FragmentActivity {
         }
         catch (Exception e) {
         }
-
+        Log.v("LO", response.toString());
         doPOSTRequest(url, query, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -163,8 +164,15 @@ public class MapsActivity extends FragmentActivity {
                     int duration = Toast.LENGTH_SHORT;
 
                     Toast.makeText(context, "CONTROL POINTS!", duration).show();
+                    JSONArray array2 = new JSONArray();
+                    try {
+                        array2 = response.getJSONObject("route").getJSONArray("legs").
+                                getJSONObject(0).getJSONArray("maneuvers");
+                    }
+                    catch (Exception e) {
+                        
+                    }
 
-                    //mTxtDisplay.setText("Response: " + response.toString());
                 }
             });
         }
@@ -247,6 +255,36 @@ public class MapsActivity extends FragmentActivity {
             e.printStackTrace();
         }
 
+        // Remove previous roads and marks
+        mMap.clear();
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
+        focusCameraOnPath(points);
+
+    }
+
+    /**
+     * Zooms the camera so that the path fits in the screen
+     * @param path set of points that form the path
+     */
+    private void focusCameraOnPath(ArrayList<LatLng> path) {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng point : path) {
+            builder.include(point);
+        }
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        final int width = size.x;
+        final int height = size.y;
+        final int padding = 40;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                builder.build(), width, height, padding));
+    }
+
+    private void addBlueMarker(LatLng coord, String markerString) {
+        if (markerString == null) markerString = "Blue Marker";
+        mMap.addMarker(new MarkerOptions().position(coord).title(markerString).
+            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
     }
 }

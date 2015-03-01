@@ -12,14 +12,16 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fromField"
-        android:inputType="textPostalAddress|text"
-        android:hint="From:" />
+        android:inputType="textCapSentences|textPostalAddress|text"
+        android:hint="From:"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
     <EditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/toField"
-        android:inputType="text|textPostalAddress"
+        android:inputType="textCapSentences|text|textPostalAddress"
         android:hint="To:"
         android:layout_below="@+id/fromField" />
 
@@ -27,7 +29,7 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wololo"
+        android:text="Search"
         android:id="@+id/searchButton"
         android:layout_gravity="end"
         android:layout_below="@+id/toField"/>
