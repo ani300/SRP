@@ -392,7 +392,6 @@ public class MapsActivity extends FragmentActivity
     public void onConnected(Bundle connectionHint) {
         // Connected to Google Play services!
         // The good stuff goes here.
-        Log.v("LO", "WOLO");
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
