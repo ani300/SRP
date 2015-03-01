@@ -252,9 +252,7 @@ public class MapsActivity extends FragmentActivity
                 public void onResponse(JSONObject response) {
                     Context context = getApplicationContext();
                     int duration = Toast.LENGTH_SHORT;
-
-                    Toast.makeText(context, "CONTROL POINTS!", duration).show();
-
+                    
                     JSONArray array2 = new JSONArray();
                     try {
                         array2 = response.getJSONObject("route").getJSONArray("shapePoints");
