@@ -77,7 +77,7 @@ router.post('/point/route',function(req,res){
     });
 
     async.parallel(array,function(err,results){
-        if(err) throw err;
+        if(err) console.dir(err);
         else console.dir(results);
     });
 
