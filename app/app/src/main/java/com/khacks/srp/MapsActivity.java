@@ -67,19 +67,7 @@ public class MapsActivity extends FragmentActivity {
                 catch (Exception e) {
                 }
                 Log.v("LO", initialRouteGuessUrl);
-                doGETRequest(initialRouteGuessUrl);
-            }
-        });
-
-
-    }
-
-    private void doGETRequest(String url) {
-        // Request a string response from the provided URL.
-        Log.v("LO", "WOLO");
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
+                doGETRequest(initialRouteGuessUrl, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Context context = getApplicationContext();
@@ -89,7 +77,18 @@ public class MapsActivity extends FragmentActivity {
 
                         //mTxtDisplay.setText("Response: " + response.toString());
                     }
-                }, new Response.ErrorListener() {
+                });
+            }
+        });
+
+
+    }
+
+    void doGETRequest(String url, Response.Listener<JSONObject> listener) {
+        // Request a string response from the provided URL.
+        Log.v("LO", "WOLO");
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, listener, new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -103,31 +102,17 @@ public class MapsActivity extends FragmentActivity {
         mQueue.add(jsObjRequest);
     }
 
-    private void doPOSTRequest(String url, JSONObject query) {
+    private void doPOSTRequest(String url, JSONObject query, Response.Listener<JSONObject> listener) {
         // Request a string response from the provided URL.
         Log.v("LO", "WOLO");
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                (Request.Method.POST, url, query, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Context context = getApplicationContext();
-                        int duration = Toast.LENGTH_SHORT;
-
-                        Toast.makeText(context, response.toString(), duration).show();
-
-                        //mTxtDisplay.setText("Response: " + response.toString());
-                    }
-                }, new Response.ErrorListener() {
-
+                (Request.Method.POST, url, query, listener, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
                         Log.v("LO", error.getMessage());
                     }
                 });
-
-
         // Add the request to the RequestQueue.
         mQueue.add(jsObjRequest);
     }
