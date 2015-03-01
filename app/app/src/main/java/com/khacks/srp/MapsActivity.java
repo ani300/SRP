@@ -2,8 +2,13 @@ package com.khacks.srp;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -22,9 +27,17 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
+
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private EditText mFromField;
+    private EditText mToField;
+    private Button mSend;
+
+    private RequestQueue mQueue;
+    private String initialRouteGuessUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +45,38 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
 
+        // Setup the layout elements
+        mFromField = (EditText) findViewById(R.id.fromField);
+        mToField = (EditText) findViewById(R.id.toField);
+        mSend = (Button) findViewById(R.id.searchButton);
+        mFromField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+        mToField.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+
 
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&from=Lancaster,PA&to=York,PA&shapeFormat=raw&generalize=0";
+        mQueue = Volley.newRequestQueue(this);
 
+        mSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    initialRouteGuessUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
+                            URLEncoder.encode(mFromField.getText().toString(), "utf-8")+"&to="+
+                            URLEncoder.encode(mToField.getText().toString(), "utf-8");
+                }
+                catch (Exception e) {
+                }
+                Log.v("LO", initialRouteGuessUrl);
+                executeRequest(initialRouteGuessUrl);
+            }
+        });
+
+
+    }
+
+    private void executeRequest(String url) {
         // Request a string response from the provided URL.
+        Log.v("LO", "WOLO");
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -54,13 +93,13 @@ public class MapsActivity extends FragmentActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
-
+                        Log.v("LO", error.getMessage());
                     }
                 });
 
 
         // Add the request to the RequestQueue.
-        queue.add(jsObjRequest);
+        mQueue.add(jsObjRequest);
     }
 
     @Override

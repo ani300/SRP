@@ -13,8 +13,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/fromField"
         android:inputType="textPostalAddress|text"
-        android:hint="From:"
-        android:background="#64a3a3a3" />
+        android:hint="From:" />
 
     <EditText
         android:layout_width="fill_parent"
@@ -22,8 +21,7 @@
         android:id="@+id/toField"
         android:inputType="text|textPostalAddress"
         android:hint="To:"
-        android:layout_below="@+id/fromField"
-        android:background="#64a3a3a3" />
+        android:layout_below="@+id/fromField" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
