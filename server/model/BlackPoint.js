@@ -74,7 +74,7 @@ var searchPoint = function(box){
             "query":{
                 "filtered" : {
                     "query" : {
-                        "field":{
+                        "term":{
                             "road" : box.getRoad()
                         }
                     },
