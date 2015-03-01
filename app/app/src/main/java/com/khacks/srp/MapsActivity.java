@@ -302,23 +302,6 @@ public class MapsActivity extends FragmentActivity
                 // Print them as we just received them
                 addBlueMarker(new LatLng(lat, lng), markerText);
             }
-            /*
-            doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    Context context = getApplicationContext();
-                    int duration = Toast.LENGTH_SHORT;
-                    
-                    JSONArray array2 = new JSONArray();
-                    try {
-                        array2 = response.getJSONObject("route").getJSONArray("shapePoints");
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            */
         }
         catch (Exception e) {
             e.printStackTrace();
