@@ -78,6 +78,8 @@ router.post('/point/route',function(req,res){
 
     var maneuvers = req.param("maneuvers",null);
 
+    console.dir(maneuvers);
+
 
     var array = maneuvers.map( function (elem, index) {
         var box = null;
