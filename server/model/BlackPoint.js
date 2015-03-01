@@ -6,7 +6,7 @@ var db = null;
 var point = function (arg){
     this.lat = arg.lat? parseFloat(arg.lat): null;
     this.lng = arg.lng? parseFloat(arg.lng): null;
-    this.road = arg.road? parseFloat(arg.road): null;
+    this.road = arg.road? arg.road: null;
     this.km = arg.km? parseFloat(arg.km): null;
     this.rate = arg.rate? parseFloat(arg.rate): null;
     console.log("Point created");
