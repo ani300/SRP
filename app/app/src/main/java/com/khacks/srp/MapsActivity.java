@@ -53,6 +53,7 @@ public class MapsActivity extends FragmentActivity
     private EditText mToField;
     private Button mSend;
     private Button mSafeSearch;
+    private Button mTravelButton;
 
     private RequestQueue mQueue;
     private String mMapQuestUrl;
@@ -101,6 +102,7 @@ public class MapsActivity extends FragmentActivity
         mToField = (EditText) findViewById(R.id.toField);
         mSend = (Button) findViewById(R.id.searchButton);
         mSafeSearch = (Button) findViewById(R.id.safeButton);
+        mTravelButton = (Button) findViewById(R.id.travelButton);
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
@@ -109,6 +111,8 @@ public class MapsActivity extends FragmentActivity
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Desactivate navigating mode
+                mTracking = false;
                 markerVisited = new ArrayList<>();
                 markerLocation = new ArrayList<>();
                 markerName = new ArrayList<>();
@@ -146,6 +150,13 @@ public class MapsActivity extends FragmentActivity
                     if (from.isEmpty()) Toast.makeText(context, "Origin is missing!", duration).show();
                     else Toast.makeText(context, "Destination is missing!", duration).show();
                 }
+            }
+        });
+
+        mTravelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mTracking = true;
             }
         });
 
@@ -340,6 +351,10 @@ public class MapsActivity extends FragmentActivity
         return (RADIUS * c);
     }
 
+    // Starts travel by enabling tracking
+    private void startTravel() {
+        mTracking = true;
+    }
 
     /**
      * Checks for a close Mark to current position, and if it's the first
@@ -349,7 +364,7 @@ public class MapsActivity extends FragmentActivity
         Location mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         LatLng ownPos = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
-                mLastLocation.getLongitude()), 13));
+                mLastLocation.getLongitude()), 18));
         if (mLocation != null) {
             Log.v("Marks", "checking close marks");
             for (int i = 0; i < markerLocation.size(); ++i) {
@@ -387,7 +402,9 @@ public class MapsActivity extends FragmentActivity
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
-                checkCloseMarks();
+                if (mTracking) {
+                    checkCloseMarks();
+                }
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}

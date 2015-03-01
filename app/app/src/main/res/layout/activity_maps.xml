@@ -14,7 +14,8 @@
         android:layout_height="80dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:background="#76959595"></FrameLayout>
+        android:background="#76959595"
+        android:id="@+id/frameLayout"></FrameLayout>
 
     <EditText
         android:layout_width="fill_parent"
@@ -53,6 +54,17 @@
         android:layout_centerHorizontal="true"
         android:visibility="invisible"
         android:enabled="false" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Travel"
+        android:id="@+id/travelButton"
+        android:layout_gravity="end"
+        android:layout_below="@+id/frameLayout"
+        android:layout_toRightOf="@+id/searchButton"
+        android:layout_toEndOf="@+id/searchButton" />
 
 
 </RelativeLayout>
