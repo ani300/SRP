@@ -47,6 +47,7 @@ public class MapsActivity extends FragmentActivity
     private EditText mFromField;
     private EditText mToField;
     private Button mSend;
+    private Button mSafeSearch;
 
     private RequestQueue mQueue;
     private String mMapQuestUrl;
@@ -86,6 +87,7 @@ public class MapsActivity extends FragmentActivity
         mFromField = (EditText) findViewById(R.id.fromField);
         mToField = (EditText) findViewById(R.id.toField);
         mSend = (Button) findViewById(R.id.searchButton);
+        mSafeSearch = (Button) findViewById(R.id.safeButton);
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
@@ -116,6 +118,8 @@ public class MapsActivity extends FragmentActivity
                         @Override
                         public void onResponse(JSONObject response) {
                             drawJSONDirection(response);
+                            mSafeSearch.setVisibility(View.VISIBLE);
+                            mSafeSearch.setActivated(true);
                             callJSolaServer(response);
                         }
                     });
@@ -130,7 +134,12 @@ public class MapsActivity extends FragmentActivity
             }
         });
 
-
+        mSafeSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: Fill listener
+            }
+        });
     }
 
     void callJSolaServer(JSONObject response) {
@@ -237,7 +246,7 @@ public class MapsActivity extends FragmentActivity
                 JSONObject info = new JSONObject();
                 double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
                 double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lon");
-                String markerText = array.getJSONObject(i).getString("road") + ", "
+                String markerText = array.getJSONObject(i).getString("road") + ", km "
                         + array.getJSONObject(i).getString("km");
                 info.put("lat",lat);
                 info.put("lng",lng);
@@ -246,20 +255,21 @@ public class MapsActivity extends FragmentActivity
                 query.accumulate("routeControlPointCollection", info);
                 markerLocation.add(new LatLng(lat, lng));
                 markerName.add(markerText);
+                // Print them as we just received them
+                addBlueMarker(new LatLng(lat, lng), markerText);
             }
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     Context context = getApplicationContext();
                     int duration = Toast.LENGTH_SHORT;
-
-                    Toast.makeText(context, "CONTROL POINTS!", duration).show();
-
+                    
                     JSONArray array2 = new JSONArray();
                     try {
                         array2 = response.getJSONObject("route").getJSONArray("shapePoints");
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             });
@@ -341,9 +351,13 @@ public class MapsActivity extends FragmentActivity
 
         // Remove previous roads and marks
         mMap.clear();
+        // Print map and all markers
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
-        focusCameraOnPath(points);
 
+        for (int i = 0; i < markerLocation.size(); ++i) {
+            addBlueMarker(markerLocation.get(i), markerName.get(i));
+        }
+        focusCameraOnPath(points);
     }
 
     /**
@@ -362,8 +376,11 @@ public class MapsActivity extends FragmentActivity
         final int width = size.x;
         final int height = size.y;
         final int padding = 40;
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
-                builder.build(), width, height, padding));
+        // avoid animateCamera if points is empty
+        if (path.size() > 0) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                    builder.build(), width, height, padding));
+        }
     }
 
     private void addBlueMarker(LatLng coord, String markerString) {
@@ -384,7 +401,6 @@ public class MapsActivity extends FragmentActivity
     public void onConnected(Bundle connectionHint) {
         // Connected to Google Play services!
         // The good stuff goes here.
-        Log.v("LO", "WOLO");
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
