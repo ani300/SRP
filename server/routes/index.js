@@ -10,7 +10,7 @@ var async = require("async");
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Safe Route Planner' });
 });
 
 
