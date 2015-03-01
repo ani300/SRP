@@ -1,5 +1,6 @@
 package com.khacks.srp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -64,6 +66,12 @@ public class MapsActivity extends FragmentActivity
         super.onStop();
     }
 
+    // Function to hide keyboard
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +86,7 @@ public class MapsActivity extends FragmentActivity
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
+        final Activity mActivity = this;
 
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +94,8 @@ public class MapsActivity extends FragmentActivity
                 String from = mFromField.getText().toString();
                 String to = mToField.getText().toString();
                 if (!from.isEmpty() && !to.isEmpty()) {
+                    // Hide keyboard
+                    hideSoftKeyboard(mActivity);
                     // Initialize variables
                     try {
                         mMapQuestUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
@@ -105,6 +116,13 @@ public class MapsActivity extends FragmentActivity
                             callJSolaServer(response);
                         }
                     });
+                }
+                else {
+                    // One of the fields is empty, create a toast
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+                    if (from.isEmpty()) Toast.makeText(context, "Origin is missing!", duration).show();
+                    else Toast.makeText(context, "Destination is missing!", duration).show();
                 }
             }
         });
@@ -176,7 +194,7 @@ public class MapsActivity extends FragmentActivity
                 info.put("lng",lng);
                 info.put("weight",100);
                 info.put("radius",5);
-                query.accumulate("routeControlPointCollection",info);
+                query.accumulate("routeControlPointCollection", info);
                 addBlueMarker(new LatLng(lat, lng), "Point " + i);
             }
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
