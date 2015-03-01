@@ -176,10 +176,15 @@ public class MapsActivity extends FragmentActivity
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
                         if (error != null) {
-                            Log.v("LO", error.getMessage());
+                            if (error.getMessage() != null) {
+                                Log.v("LO", error.getMessage());
+                            }
+                            else {
+                                Log.v("LO", "WOLO :(");
+                            }
                         }
                         else {
-                            Log.v("LO", "WOLO :(");
+                            Log.v("LO", "WOLO :(((((");
                         }
                     }
                 });
