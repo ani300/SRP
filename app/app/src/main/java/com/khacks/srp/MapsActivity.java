@@ -236,7 +236,7 @@ public class MapsActivity extends FragmentActivity
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
                 double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
-                double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lng");
+                double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lon");
                 String markerText = array.getJSONObject(i).getString("road") + ", "
                         + array.getJSONObject(i).getString("km");
                 info.put("lat",lat);
