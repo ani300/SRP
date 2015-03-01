@@ -71,7 +71,7 @@ public class MapsActivity extends FragmentActivity
     // True if there is tracking navigation
     private boolean mTracking = false;
     // Distance to detect the mark, in km.
-    final private double mMarkMinDist = 100.0;
+    final private double mMarkMinDist = 2.0;
 
     @Override
     protected void onStart() {
