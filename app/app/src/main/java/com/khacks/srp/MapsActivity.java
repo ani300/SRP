@@ -139,12 +139,29 @@ public class MapsActivity extends FragmentActivity
         try {
             array = response.getJSONObject("route").getJSONArray("legs").
                     getJSONObject(0).getJSONArray("maneuvers");
+            for (int i = 0; i < array.length(); ++i) {
+                array.getJSONObject(i).remove("signs");
+                array.getJSONObject(i).remove("maneuverNotes");
+                array.getJSONObject(i).remove("index");
+                array.getJSONObject(i).remove("narrative");
+                array.getJSONObject(i).remove("direction");
+                array.getJSONObject(i).remove("iconUrl");
+                array.getJSONObject(i).remove("time");
+                array.getJSONObject(i).remove("distance");
+                array.getJSONObject(i).remove("linkIds");
+                array.getJSONObject(i).remove("transportMode");
+                array.getJSONObject(i).remove("attributes");
+                array.getJSONObject(i).remove("formattedTime");
+                array.getJSONObject(i).remove("directionName");
+                array.getJSONObject(i).remove("mapUrl");
+                array.getJSONObject(i).remove("turnType");
+            }
             query.accumulate("maneuvers", array);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        Log.v("LO", response.toString());
+        //Log.v("LO", response.toString());
         doPOSTRequest(url, query, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -154,14 +171,24 @@ public class MapsActivity extends FragmentActivity
     }
     void doGETRequest(String url, Response.Listener<JSONObject> listener) {
         // Request a string response from the provided URL.
-        Log.v("LO", "WOLO");
+        //Log.v("LO", "WOLO");
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, listener, new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // TODO Auto-generated method stub
-                        Log.v("LO", error.getMessage());
+                        if (error != null) {
+                            if (error.getMessage() != null) {
+                                Log.v("LO", error.getMessage());
+                            }
+                            else {
+                                Log.v("LO", "WOLO :(");
+                            }
+                        }
+                        else {
+                            Log.v("LO", "WOLO :(((((");
+                        }
                     }
                 });
 
@@ -172,7 +199,8 @@ public class MapsActivity extends FragmentActivity
 
     private void doPOSTRequest(String url, JSONObject query, Response.Listener<JSONObject> listener) {
         // Request a string response from the provided URL.
-        Log.v("LO", url);
+        //Log.v("LO", url);
+        //Log.v("LO", query.toString());
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.POST, url, query, listener, new Response.ErrorListener() {
                     @Override
