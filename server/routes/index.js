@@ -76,7 +76,7 @@ router.post('/point/add', function(req,res){
 router.post('/point/route',function(req,res){
 
 
-    var maneuvers = req.param("maneuvers",null);
+    var maneuvers =req.param("maneuvers",null);
 
 //    console.dir(maneuvers);
 
@@ -87,8 +87,6 @@ router.post('/point/route',function(req,res){
             if(elem.streets && elem.streets.length!= 0) {
                 box = new Box(elem.streets[0], elem.startPoint, maneuvers[index+1].startPoint);
                 return function (cb){
-                    //console.log("In kek func");
-                    //console.dir(box);
                     if(box) BlackPoint.Search(box,cb);
                     else cb(null, []);
                 };
@@ -104,7 +102,11 @@ router.post('/point/route',function(req,res){
         console.log("In res func");
 
         if(err) console.dir(err);
-        else res.json({blackPoints:results});
+        else {
+            var arr = [];
+            results.map(function(elem){arr = arr.concat(elem);});
+            res.json({blackPoints:arr});
+        }
     });
 
 });
