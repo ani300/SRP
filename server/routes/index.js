@@ -3,7 +3,7 @@ var router = express.Router();
 var es = require("elasticsearch");
 var db = new es.Client({
     host: "127.0.0.1:9200",
-    logs: ["trace","error"]
+    log: ["trace","error"]
 });
 var BlackPoint = require('./../model/BlackPoint.js').BlackPoint(db);
 var Box = require('./../model/Box.js').Box;
