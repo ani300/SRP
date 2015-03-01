@@ -105,15 +105,10 @@ public class MapsActivity extends FragmentActivity
                     catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Log.v("LO", mMapQuestUrl);
                     Toast.makeText(getApplicationContext(), "Calculating route", Toast.LENGTH_SHORT).show();
                     doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Context context = getApplicationContext();
-                            int duration = Toast.LENGTH_SHORT;
-
-                            Toast.makeText(context, response.toString(), duration).show();
                             drawJSONDirection(response);
                             callJSolaServer(response);
                         }
