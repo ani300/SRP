@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +46,8 @@ import java.util.ArrayList;
 public class MapsActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    private final double RADIUS = 6372.8; // In kilometers
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private EditText mFromField;
     private EditText mToField;
@@ -56,9 +60,16 @@ public class MapsActivity extends FragmentActivity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
+    private ArrayList<Boolean> markerVisited;
     private ArrayList<LatLng> markerLocation;
     private ArrayList<String> markerName;
     private JSONObject queryControlPoints;
+
+    // True if there is tracking navigation
+    private boolean mTracking = false;
+    // Distance to detect the mark, in km.
+    final private double mMarkMinDist = 2.0;
+
 
     @Override
     protected void onStart() {
@@ -98,6 +109,7 @@ public class MapsActivity extends FragmentActivity
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                markerVisited = new ArrayList<>();
                 markerLocation = new ArrayList<>();
                 markerName = new ArrayList<>();
 
@@ -316,6 +328,79 @@ public class MapsActivity extends FragmentActivity
         setUpMapIfNeeded();
     }
 
+    // Distance between two points in a sphere (in lat, lon) in km.
+    private double dist(LatLng pos1, LatLng pos2) {
+        double dLat = Math.toRadians(pos2.latitude - pos1.latitude);
+        double dLon = Math.toRadians(pos2.longitude - pos1.longitude);
+        double lat1 = Math.toRadians(pos1.latitude);
+        double lat2 = Math.toRadians(pos2.latitude);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        return (RADIUS * c);
+    }
+
+
+    /**
+     * Checks for a close Mark to current position, and if it's the first
+     * time that is closer than minDist, send a Yo
+     */
+    private void checkCloseMarks() {
+        Location mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        LatLng ownPos = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
+                mLastLocation.getLongitude()), 13));
+        if (mLocation != null) {
+            Log.v("Marks", "checking close marks");
+            for (int i = 0; i < markerLocation.size(); ++i) {
+                LatLng pos = markerLocation.get(i);
+                // If the object is close, send a YO and mark as visited
+                if (dist(ownPos, pos) <= mMarkMinDist && !markerVisited.get(i)) {
+                    markerVisited.set(i, true);
+                    String YoUrl = "http://37.187.81.177:8000/yo";
+                    doGETRequest(YoUrl, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                        }
+                    });
+
+                }
+            }
+        }
+    }
+
+
+    /**
+     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
+     * just add a marker near Africa.
+     * <p/>
+     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     */
+    private void setUpMap() {
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                checkCloseMarks();
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+        // Register the listener with the Location Manager to receive location updates
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    }
+
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
@@ -338,23 +423,12 @@ public class MapsActivity extends FragmentActivity
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
             mMap.getUiSettings().setCompassEnabled(false);
-            
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
             }
         }
-    }
-
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-    private void setUpMap() {
-        mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(false);
     }
 
     /**
