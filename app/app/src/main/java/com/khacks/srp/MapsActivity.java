@@ -151,11 +151,14 @@ public class MapsActivity extends FragmentActivity {
             JSONArray array = jsonObject.getJSONArray("blackPoints");
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
-                info.put("lat",array.getJSONObject(i).getDouble("lat"));
-                info.put("lng",array.getJSONObject(i).getDouble("lng"));
+                double lat = array.getJSONObject(i).getDouble("lat");
+                double lng = array.getJSONObject(i).getDouble("lng");
+                info.put("lat",lat);
+                info.put("lng",lng);
                 info.put("weight",100);
                 info.put("radius",5);
                 query.accumulate("routeControlPointCollection",info);
+                addBlueMarker(new LatLng(lat, lng), "Point " + i);
             }
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
                 @Override
@@ -164,15 +167,14 @@ public class MapsActivity extends FragmentActivity {
                     int duration = Toast.LENGTH_SHORT;
 
                     Toast.makeText(context, "CONTROL POINTS!", duration).show();
+
                     JSONArray array2 = new JSONArray();
                     try {
-                        array2 = response.getJSONObject("route").getJSONArray("legs").
-                                getJSONObject(0).getJSONArray("maneuvers");
+                        array2 = response.getJSONObject("route").getJSONArray("shapePoints");
                     }
                     catch (Exception e) {
-                        
-                    }
 
+                    }
                 }
             });
         }
