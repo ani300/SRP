@@ -57,6 +57,7 @@ public class MapsActivity extends FragmentActivity
 
     private ArrayList<LatLng> markerLocation;
     private ArrayList<String> markerName;
+    private JSONObject queryControlPoints;
 
     @Override
     protected void onStart() {
@@ -93,12 +94,12 @@ public class MapsActivity extends FragmentActivity
         mQueue = Volley.newRequestQueue(this);
         final Activity mActivity = this;
 
-        markerLocation = new ArrayList<>();
-        markerName = new ArrayList<>();
-
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                markerLocation = new ArrayList<>();
+                markerName = new ArrayList<>();
+
                 String from = mFromField.getText().toString();
                 String to = mToField.getText().toString();
                 if (!from.isEmpty() && !to.isEmpty()) {
@@ -115,27 +116,9 @@ public class MapsActivity extends FragmentActivity
                     }
                     Toast.makeText(getApplicationContext(), "Calculating route", Toast.LENGTH_SHORT).show();
 
-                    // Add all existing points
-                    JSONObject query = new JSONObject();
-                    // This POST request doesnt retrieve a new route different
-                    try {
-                        for (int i = 0; i < markerLocation.size(); i++) {
-                            JSONObject info = new JSONObject();
-                            double lat = markerLocation.get(i).latitude;
-                            double lng = markerLocation.get(i).longitude;
-                            info.put("lat", lat);
-                            info.put("lng", lng);
-                            info.put("weight", 100);
-                            info.put("radius", 5);
-                            query.accumulate("routeControlPointCollection", info);
-                        }
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
 
-                        //doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
+
+                    doGETRequest(mMapQuestUrl, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             drawJSONDirection(response);
@@ -158,7 +141,24 @@ public class MapsActivity extends FragmentActivity
         mSafeSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Fill listener
+                Context context = getApplicationContext();
+                int duration = Toast.LENGTH_SHORT;
+                Toast.makeText(context, "Calculating SAFE route", duration).show();
+
+                doPOSTRequest(mMapQuestUrl, queryControlPoints, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        drawJSONDirection(response);
+                        
+                        JSONArray array2 = new JSONArray();
+                        try {
+                            //array2 = response.getJSONObject("route").getJSONArray("shapePoints");
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         });
     }
@@ -261,7 +261,7 @@ public class MapsActivity extends FragmentActivity
 
     private void searchControlPoints(JSONObject jsonObject) {
         try {
-            JSONObject query = new JSONObject();
+            queryControlPoints = new JSONObject();
             JSONArray array = jsonObject.getJSONArray("blackPoints");
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
@@ -273,7 +273,7 @@ public class MapsActivity extends FragmentActivity
                 info.put("lng",lng);
                 info.put("weight",100);
                 info.put("radius",5);
-                query.accumulate("routeControlPointCollection", info);
+                queryControlPoints.accumulate("routeControlPointCollection", info);
                 markerLocation.add(new LatLng(lat, lng));
                 markerName.add(markerText);
                 // Print them as we just received them
@@ -353,7 +353,7 @@ public class MapsActivity extends FragmentActivity
      */
     private void drawJSONDirection(JSONObject direction) {
         Polyline line = mMap.addPolyline(new PolylineOptions()
-                .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
+                //.add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
                 .width(5)
                 .color(Color.RED));
 
