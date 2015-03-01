@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 var es = require("elasticsearch");
 var db = new es.Client({
-    host: "127.0.0.1:9200",
-    log:["trace"]
+    host: "127.0.0.1:9200"
 });
 var BlackPoint = require('./../model/BlackPoint.js').BlackPoint(db);
 var Box = require('./../model/Box.js').Box;
@@ -75,10 +74,10 @@ router.post('/point/add', function(req,res){
 
 router.post('/point/route',function(req,res){
 
+    sendYo();
 
     var maneuvers =req.param("maneuvers",null);
 
-//    console.dir(maneuvers);
 
 
     var array = maneuvers.map( function (elem, index) {
@@ -111,3 +110,8 @@ router.post('/point/route',function(req,res){
 
 });
 module.exports = router;
+
+function sendYo(){
+    var request = require('request');
+    request.post("https://api.justyo.co/yoall/?api_token=b0116fee-8f13-464c-84d7-6908d02bade7&link=https://collegecandy.files.wordpress.com/2012/11/yoda-yolo.jpg");
+}
