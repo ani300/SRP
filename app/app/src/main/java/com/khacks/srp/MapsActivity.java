@@ -1,6 +1,7 @@
 package com.khacks.srp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -18,6 +19,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -248,5 +251,10 @@ public class MapsActivity extends FragmentActivity {
         }
 
         mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
+    }
+
+    private void addBlueMarker(LatLng coord) {
+        mMap.addMarker(new MarkerOptions().position(coord).title("Blue Marker").
+            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
     }
 }
