@@ -57,7 +57,29 @@ router.post('/point/add', function(req,res){
 
 router.post('/point/route',function(req,res){
 
-    console.dir(req.param("maneuvers",null));
+    var maneuvers = req.param("maneuvers",null);
+
+    var array = maneuvers.map( function (elem, index) {
+        var box = null;
+        if(index != maneuvers.length-1){
+            if(elem.streets && elem.streets.length!= 0) {
+                box = new Box(elem.streets[0], elem.startPoint, maneuvers[index+1].startPoint);
+                return function (){
+                    console.log("In kek func");
+                    console.dir(box);
+                    if(box) return BlackPoint.Search(box);
+                    else return [];
+                };
+            }
+        } else {
+            return function(){return [];};
+        }
+    });
+
+    async.parallel(array,function(err,results){
+        if(err) throw err;
+        else console.dir(results);
+    });
 
     res.json({blackPoints:[]});
 });

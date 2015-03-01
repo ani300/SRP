@@ -66,7 +66,7 @@ point.prototype.Save = function(){
     });
 };
 
-var searchPoint = function(box,cb){
+var searchPoint = function(box){
     var query={
         index:"srp-point",
         type:"point",
@@ -91,8 +91,8 @@ var searchPoint = function(box,cb){
     db.search(query,function(err,resp){
         if(err) throw err;
         else {
-            if(res.hits.total != 0) cb(resp.hits.hits);
-            else cb([]);
+            if(res.hits.total != 0) return resp.hits.hits;
+            else return [];
         }
     });
 };
