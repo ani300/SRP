@@ -1,14 +1,16 @@
 package com.khacks.srp;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,10 +21,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -36,7 +40,8 @@ import org.json.JSONObject;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends FragmentActivity
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private EditText mFromField;
@@ -46,10 +51,32 @@ public class MapsActivity extends FragmentActivity {
     private RequestQueue mQueue;
     private String mMapQuestUrl;
 
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    // Function to hide keyboard
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        buildGoogleApiClient();
         setUpMapIfNeeded();
 
         // Setup the layout elements
@@ -59,6 +86,7 @@ public class MapsActivity extends FragmentActivity {
 
         // Instantiate the RequestQueue.
         mQueue = Volley.newRequestQueue(this);
+        final Activity mActivity = this;
 
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +94,8 @@ public class MapsActivity extends FragmentActivity {
                 String from = mFromField.getText().toString();
                 String to = mToField.getText().toString();
                 if (!from.isEmpty() && !to.isEmpty()) {
+                    // Hide keyboard
+                    hideSoftKeyboard(mActivity);
                     // Initialize variables
                     try {
                         mMapQuestUrl ="http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu8210ynq%2C8w%3Do5-94r504&ambiguities=ignore&avoidTimedConditions=false&outFormat=json&routeType=fastest&enhancedNarrative=false&shapeFormat=raw&generalize=0&locale=en_US&unit=m&from="+
@@ -86,6 +116,13 @@ public class MapsActivity extends FragmentActivity {
                             callJSolaServer(response);
                         }
                     });
+                }
+                else {
+                    // One of the fields is empty, create a toast
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_SHORT;
+                    if (from.isEmpty()) Toast.makeText(context, "Origin is missing!", duration).show();
+                    else Toast.makeText(context, "Destination is missing!", duration).show();
                 }
             }
         });
@@ -132,13 +169,22 @@ public class MapsActivity extends FragmentActivity {
 
     private void doPOSTRequest(String url, JSONObject query, Response.Listener<JSONObject> listener) {
         // Request a string response from the provided URL.
-        Log.v("LO", "WOLO");
+        Log.v("LO", url);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.POST, url, query, listener, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO Auto-generated method stub
-                        Log.v("LO", error.getMessage());
+                        if (error != null) {
+                            if (error.getMessage() != null) {
+                                Log.v("LO", error.getMessage());
+                            }
+                            else {
+                                Log.v("LO", "WOLO :(");
+                            }
+                        }
+                        else {
+                            Log.v("LO", "WOLO :(((((");
+                        }
                     }
                 });
         // Add the request to the RequestQueue.
@@ -151,13 +197,13 @@ public class MapsActivity extends FragmentActivity {
             JSONArray array = jsonObject.getJSONArray("blackPoints");
             for (int i = 0; i < array.length(); i++) {
                 JSONObject info = new JSONObject();
-                double lat = array.getJSONObject(i).getDouble("lat");
-                double lng = array.getJSONObject(i).getDouble("lng");
+                double lat = array.getJSONObject(i).getJSONObject("location").getDouble("lat");
+                double lng = array.getJSONObject(i).getJSONObject("location").getDouble("lng");
                 info.put("lat",lat);
                 info.put("lng",lng);
                 info.put("weight",100);
                 info.put("radius",5);
-                query.accumulate("routeControlPointCollection",info);
+                query.accumulate("routeControlPointCollection", info);
                 addBlueMarker(new LatLng(lat, lng), "Point " + i);
             }
             doPOSTRequest(mMapQuestUrl, query, new Response.Listener<JSONObject>() {
@@ -173,7 +219,6 @@ public class MapsActivity extends FragmentActivity {
                         array2 = response.getJSONObject("route").getJSONArray("shapePoints");
                     }
                     catch (Exception e) {
-
                     }
                 }
             });
@@ -215,11 +260,6 @@ public class MapsActivity extends FragmentActivity {
             if (mMap != null) {
                 setUpMap();
             }
-
-            Polyline line = mMap.addPolyline(new PolylineOptions()
-                    .add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
-                    .width(5)
-                    .color(Color.RED));
         }
     }
 
@@ -230,7 +270,8 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
     }
 
     /**
@@ -287,6 +328,44 @@ public class MapsActivity extends FragmentActivity {
     private void addBlueMarker(LatLng coord, String markerString) {
         if (markerString == null) markerString = "Blue Marker";
         mMap.addMarker(new MarkerOptions().position(coord).title(markerString).
-            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
     }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        // Connected to Google Play services!
+        // The good stuff goes here.
+        Log.v("LO", "WOLO");
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastLocation.getLatitude(),
+                    mLastLocation.getLongitude()), 13));
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection has been interrupted.
+        // Disable any UI components that depend on Google APIs
+        // until onConnected() is called.
+        Log.v("LO", "WOLO :(");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // This callback is important for handling errors that
+        // may occur while attempting to connect with Google.
+        //
+        // More about this in the next section.
+        Log.v("LO", "WOLO :((((((((");
+    }
+
 }
