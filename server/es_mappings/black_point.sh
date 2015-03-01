@@ -1,3 +1,4 @@
+curl -XDELETE "http://localhost:9200/srp-point"
 curl -XPOST "http://localhost:9200/srp-point" -d '{
     settings: {
         index: {
@@ -35,7 +36,7 @@ curl -XPOST "http://localhost:9200/srp-point" -d '{
     "mappings" : {
         "point":{
             "properties":{
-                "ranking":{
+                "rate":{
                     "type":"integer"
                 },
                 "road":{

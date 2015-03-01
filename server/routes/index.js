@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var es = require("elasticsearch");
 var db = new es.Client({
-    host: "127.0.0.1:9200"
+    host: "127.0.0.1:9200",
+    log:["trace"]
 });
 var BlackPoint = require('./../model/BlackPoint.js').BlackPoint(db);
 var Box = require('./../model/Box.js').Box;
@@ -51,35 +52,57 @@ router.post('/point/add', function(req,res){
 },
 "turnType": 1
 },
+
+
+ [{"streets": [
+    "C-55",
+],
+"startPoint": {
+    "lng": 0,
+    "lat": 0
+}
+},
+ {"streets": [
+    "C-55",
+],
+"startPoint": {
+    "lng": 2,
+    "lat": 2
+}
+}]
  *
  */
 
 router.post('/point/route',function(req,res){
 
-    var maneuvers = req.param("maneuvers",null);
+
+    var maneuvers = JSON.parse(req.param("maneuvers",null));
+
 
     var array = maneuvers.map( function (elem, index) {
         var box = null;
         if(index != maneuvers.length-1){
             if(elem.streets && elem.streets.length!= 0) {
                 box = new Box(elem.streets[0], elem.startPoint, maneuvers[index+1].startPoint);
-                return function (){
+                return function (cb){
                     console.log("In kek func");
                     console.dir(box);
-                    if(box) return BlackPoint.Search(box);
-                    else return [];
+                    if(box) BlackPoint.Search(box,cb);
+                    else cb(null, []);
                 };
             }
         } else {
-            return function(){return [];};
+            return function(cb){cb(null,[]);};
         }
     });
 
-    async.parallel(array,function(err,results){
+    async.parallel(array, function(err,results) {
+
+        console.log("In res func");
+
         if(err) console.dir(err);
-        else console.dir(results);
+        else res.json({blackPoints:results});
     });
 
-    res.json({blackPoints:[]});
 });
 module.exports = router;

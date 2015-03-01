@@ -6,7 +6,7 @@ var db = null;
 var point = function (arg){
     this.lat = arg.lat? arg.lat: null;
     this.lng = arg.lng? arg.lng: null;
-    this.route = arg.road? arg.road: null;
+    this.road = arg.road? arg.road: null;
     this.km = arg.km? arg.km: null;
     this.rate = arg.rate? arg.rate: null;
     console.log("Point created");
@@ -59,14 +59,22 @@ point.prototype.Save = function(){
     db.create({
         index:"srp-point",
         type:"point",
-        body: this
+        body: {
+            rate: this.rate,
+            km: this.km,
+            road: this.road,
+            location: {
+                lat:this.lat,
+                lon:this.lng
+            }
+        }
     },function(err,resp){
         console.log(err);
         if(err) throw err;
     });
 };
 
-var searchPoint = function(box){
+var searchPoint = function(box,cb){
     var query={
         index:"srp-point",
         type:"point",
@@ -75,7 +83,7 @@ var searchPoint = function(box){
                 "filtered" : {
                     "query" : {
                         "term":{
-                            "road" : box.getRoad()
+                            "road" : box.getRoad().toLowerCase()
                         }
                     },
                     "filter" : {
@@ -91,8 +99,10 @@ var searchPoint = function(box){
     db.search(query,function(err,resp){
         if(err) console.dir(err);
         else {
-            if(resp.hits.total != 0) return resp.hits.hits;
-            else return [];
+            if(resp.hits.total != 0) cb(null,resp.hits.hits.map(function(elem,index){
+                return elem._source;
+            }));
+            else cb(null, []);
         }
     });
 };
